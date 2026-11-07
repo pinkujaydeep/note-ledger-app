@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171a18">
+  <title>Sign in | Note Ledger</title>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <a class="wordmark" href="/" aria-label="Note Ledger home"><span class="brand-mark">N</span><span>NOTE <b>LEDGER</b></span></a>
+    <div class="login-copy">
+      <p class="eyebrow">PRIVATE WORKSPACE / 01</p>
+      <h1>Keep your notes<br><em>in your hands.</em></h1>
+      <p class="muted">A private notebook for ideas, working notes, and lessons learned.</p>
+    </div>
+    <form class="login-form" method="post" action="{{ url_for('login_submit') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="password">Workspace password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
+      {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+      <button class="button button-primary login-button" type="submit">Open ledger <span aria-hidden="true">&#8594;</span></button>
+    </form>
+    <p class="login-foot mono">PRIVATE SESSION <span>·</span> SERVER-SIDE STORAGE</p>
+  </main>
+</body>
+</html>

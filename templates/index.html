@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#171a18">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>Note Ledger</title>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="/" aria-label="Note Ledger home"><span class="brand-mark">N</span><span>NOTE <b>LEDGER</b></span></a>
+    <div class="topbar-meta">
+      <span class="network-status" id="network-status" role="status" aria-live="polite"></span>
+      <span class="topbar-divider"></span>
+      <span class="mono topbar-date" id="today"></span>
+      <label class="visually-hidden" for="theme-select">Color theme</label>
+      <select class="theme-select" id="theme-select" aria-label="Color theme">
+        <option value="system">System</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+    <form method="post" action="{{ url_for('logout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="button button-quiet logout-button" type="submit">Sign out</button>
+    </form>
+  </header>
+
+  <main class="workspace">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow"><span>PERSONAL NOTES</span><span class="eyebrow-rule"></span><span>IDEAS / WORK / REFERENCE</span></p>
+      <div class="intro-row">
+        <div><h1 id="page-title">The Note <em>Ledger</em></h1><p class="intro-subtitle">Capture ideas. Keep the details. Find them when you need them.</p></div>
+        <div class="entry-count"><span class="mono" id="entry-count">--</span><span>ENTRIES</span></div>
+      </div>
+    </section>
+
+    <div class="workbench">
+      <section class="compose-panel" aria-labelledby="compose-title">
+        <div class="section-heading">
+          <div class="section-title-wrap"><span class="section-index mono">01</span><div><h2 id="compose-title">New note</h2><p>Capture something useful while it is still fresh.</p></div></div>
+          <span class="required-note mono">* REQUIRED</span>
+        </div>
+
+        <form id="entry-form" class="entry-form">
+          <div class="form-row title-row">
+            <div class="field title-field"><label for="title">Title <span>*</span></label><input id="title" name="title" maxlength="160" placeholder="e.g. Blue-green deploy for edge API" required></div>
+            <div class="field category-field"><label for="category">Category</label><select id="category" name="category"><option>Architecture</option><option>CI/CD</option><option>Cloud</option><option>Containers</option><option>Databases</option><option>Networking</option><option>Observability</option><option>Security</option><option>Other</option></select></div>
+          </div>
+
+          <fieldset class="field-group">
+            <legend><span class="group-label">Architectural blueprint</span><span class="group-note mono">01 / 03</span></legend>
+            <div class="blueprint-grid">
+              <div class="field"><label for="blueprint-1">Bottleneck solved</label><textarea id="blueprint-1" name="blueprint_1" rows="2" maxlength="1000" placeholder="Where was flow constrained?"></textarea></div>
+              <div class="field"><label for="blueprint-2">Infrastructure dependencies</label><textarea id="blueprint-2" name="blueprint_2" rows="2" maxlength="1000" placeholder="What does this rely on?"></textarea></div>
+              <div class="field"><label for="blueprint-3">Blast radius</label><textarea id="blueprint-3" name="blueprint_3" rows="2" maxlength="1000" placeholder="What could this affect?"></textarea></div>
+            </div>
+          </fieldset>
+
+          <fieldset class="field-group sketch-group">
+            <legend><span class="group-label">Topology / sketch pad</span><span class="group-note mono">02 / 03</span></legend>
+            <div class="canvas-tools" role="group" aria-label="Sketch pad actions">
+              <button class="tool-button" id="undo-sketch" type="button" title="Undo last stroke" aria-label="Undo stroke"><span aria-hidden="true">&#8630;</span><span>Undo</span></button>
+              <button class="tool-button" id="eraser-toggle" type="button" title="Toggle eraser" aria-pressed="false"><span class="tool-icon eraser-icon" aria-hidden="true"></span><span>Eraser</span></button>
+              <span class="tool-spacer"></span>
+              <span class="canvas-hint mono">TOUCH / STYLUS READY</span>
+              <button class="tool-button tool-clear" id="clear-sketch" type="button" title="Clear sketch pad"><span aria-hidden="true">&#215;</span><span>Clear pad</span></button>
+            </div>
+            <div class="canvas-wrap"><canvas id="sketch-canvas" aria-label="Draw a topology sketch"></canvas><span class="canvas-placeholder" id="canvas-placeholder"><span class="draw-cursor" aria-hidden="true">&#8599;</span>Sketch a topology, flow, or system boundary</span></div>
+          </fieldset>
+
+          <fieldset class="field-group syntax-group">
+            <legend><span class="group-label">Command &amp; context syntax</span><span class="group-note mono">03 / 03</span></legend>
+            <div class="field"><label class="visually-hidden" for="syntax-block">Terminal commands or scripts</label><textarea id="syntax-block" name="syntax_block" class="code-input" rows="5" maxlength="12000" spellcheck="false" placeholder="$ kubectl rollout status deployment/api&#10;# Add commands, config, or context..." ></textarea></div>
+          </fieldset>
+
+          <fieldset class="field-group failure-group">
+            <legend><span class="group-label">Personal failure log</span><span class="failure-mark" aria-hidden="true">!</span></legend>
+            <div class="failure-grid">
+              <div class="field"><label for="failure-symptom">The observed symptom</label><textarea id="failure-symptom" name="failure_symptom" rows="2" maxlength="2000" placeholder="What did you see?"></textarea></div>
+              <div class="field"><label for="failure-root-cause">The real root cause</label><textarea id="failure-root-cause" name="failure_root_cause" rows="2" maxlength="2000" placeholder="What actually broke?"></textarea></div>
+              <div class="field"><label for="failure-mitigation">The mitigation action</label><textarea id="failure-mitigation" name="failure_mitigation" rows="2" maxlength="2000" placeholder="What resolved it?"></textarea></div>
+            </div>
+          </fieldset>
+
+          <div class="submit-row"><p class="save-status" id="save-status" role="status" aria-live="polite"></p><button class="button button-primary save-button" type="submit"><span class="save-glyph" aria-hidden="true">+</span> Save note</button></div>
+        </form>
+      </section>
+
+      <section class="ledger-panel" aria-labelledby="ledger-title">
+        <div class="section-heading ledger-heading">
+          <div class="section-title-wrap"><span class="section-index mono">02</span><div><h2 id="ledger-title">Your ledger</h2><p>Patterns are easier to spot in writing.</p></div></div>
+          <span class="sync-status mono" id="sync-status"><span class="sync-dot"></span> SYNCING</span>
+        </div>
+        <div class="search-wrap"><label class="visually-hidden" for="entry-search">Search ledger entries</label><span class="search-icon" aria-hidden="true"></span><input id="entry-search" type="search" placeholder="Search title, category, or note..." autocomplete="off"><kbd class="search-shortcut">/</kbd></div>
+        <p class="results-label mono" id="results-label">RECENT ENTRIES <span id="result-count"></span></p>
+        <div class="entries-list" id="entries-list" aria-live="polite"></div>
+        <div class="empty-state" id="empty-state" hidden><span class="empty-mark" aria-hidden="true">∅</span><h3>No notes yet</h3><p>Your first saved thought will show up here.</p></div>
+        <p class="ledger-foot mono">SHOWING MOST RECENT 200 NOTES</p>
+      </section>
+    </div>
+    <footer class="page-footer mono"><span>NOTE LEDGER <span class="footer-dot">/</span> PRIVATE BY DESIGN</span><span>WRITE IT DOWN. FIND IT LATER.</span></footer>
+  </main>
+</body>
+</html>
